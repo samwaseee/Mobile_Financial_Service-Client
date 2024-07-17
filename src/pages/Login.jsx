@@ -1,4 +1,4 @@
-import { useState, useContext } from 'react';
+import React, { useState, useContext } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { TextField, Button, Radio, RadioGroup, FormControl, FormControlLabel, FormLabel, Typography, Link } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
@@ -8,22 +8,37 @@ const Login = () => {
   const { handleSubmit, control, formState: { errors } } = useForm();
   const { login } = useContext(AuthContext);
   const [userType, setUserType] = useState('user'); // Default to 'user' for user login
+  const [loginOption, setLoginOption] = useState('email'); // Default to 'email' for login option
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
   const onSubmit = async (data) => {
     const requestBody = {
       pin: data.pin,
-      ...(userType === 'user' ? { mobileNumber: data.mobileNumber } : { email: data.email }),
+      ...(loginOption === 'mobile' ? { mobileNumber: data.mobileNumber } : { email: data.email }),
     };
+    console.log(requestBody)
 
     try {
-      await login(requestBody);
+      await login(requestBody, userType); // Pass userType to the login function
       navigate(`/${userType}`); // Redirect based on selected userType
     } catch (err) {
-      setError('Failed to login');
+      if (err.response) {
+        // Server responded with an error status
+        console.error('Server Error:', err.response.data.message);
+        setError(err.response.data.message); // Display backend error message
+      } else if (err.request) {
+        // The request was made but no response was received
+        console.error('Request Error:', err.request);
+        setError('Network error. Please try again.');
+      } else {
+        // Something happened in setting up the request that triggered an error
+        console.error('Error:', err.message);
+        setError('Failed to login. Please try again.');
+      }
     }
   };
+
 
   return (
     <div className="flex justify-center items-center h-screen bg-gray-100">
@@ -48,7 +63,22 @@ const Login = () => {
           </RadioGroup>
         </FormControl>
 
-        {userType === 'user' ? (
+        <FormControl component="fieldset" className="mb-4">
+          <FormLabel component="legend">Login with</FormLabel>
+          <RadioGroup
+            row
+            aria-label="login-option"
+            name="login-option"
+            value={loginOption}
+            onChange={(e) => setLoginOption(e.target.value)}
+            className="space-x-4"
+          >
+            <FormControlLabel value="email" control={<Radio />} label="Email" />
+            <FormControlLabel value="mobile" control={<Radio />} label="Mobile Number" />
+          </RadioGroup>
+        </FormControl>
+
+        {loginOption === 'mobile' ? (
           <Controller
             name="mobileNumber"
             control={control}

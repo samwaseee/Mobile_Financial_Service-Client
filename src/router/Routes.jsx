@@ -30,7 +30,7 @@ const router = createBrowserRouter([
             },
             {
                 path: "/agent",
-                element: <AgentHome/>
+                element: <PrivateRoute><AgentHome/></PrivateRoute>
             },
             {
                 path: "/admin",

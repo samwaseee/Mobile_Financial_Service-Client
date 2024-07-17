@@ -50,6 +50,7 @@ export const AuthProvider = ({ children }) => {
       throw new Error('Login failed');
     }
   };
+  
 
   const logout = () => {
     setAuth({ token: null, user: null });

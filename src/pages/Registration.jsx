@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useContext } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { TextField, Button, FormControl, FormLabel, RadioGroup, FormControlLabel, Radio, Box } from '@mui/material';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import AuthContext from '../context/Authcontext'; // Import the AuthContext
 
 const Registration = () => {
   const { control, handleSubmit, formState: { errors, isValid } } = useForm({
@@ -12,6 +13,8 @@ const Registration = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  
+  const { setAuth } = useContext(AuthContext); // Use the setAuth function from context
 
   const navigate = useNavigate();
 
@@ -24,7 +27,13 @@ const Registration = () => {
     try {
       const response = await axios.post(endpoint, data);
       setSuccess('Registration successful');
-      data.role === 'User' ? navigate('/user') : navigate('/agent');
+      const token = response.data.token; // Assume the token is returned in the response
+
+      if (token) {
+        localStorage.setItem('authToken', token); // Save token to localStorage
+        setAuth({ token, user: response.data.user }); // Update the auth context
+        data.role === 'User' ? navigate('/user') : navigate('/agent');
+      }
     } catch (err) {
       setError(err.response?.data?.message || 'Registration failed. Please try again.');
     } finally {
