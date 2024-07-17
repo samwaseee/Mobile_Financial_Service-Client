@@ -38,7 +38,7 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (data, role) => {
     try {
-      const endpoint = role === 'agent' ? '/agents/login' : '/users/login';
+      const endpoint = role === 'agent' ? '/agents/login' : role === 'admin' ? '/admins/login' : '/users/login';
       const response = await axiosInstance.post(endpoint, data);
       const { token } = response.data;
       const user = jwtDecode(token);
@@ -50,7 +50,6 @@ export const AuthProvider = ({ children }) => {
       throw new Error('Login failed');
     }
   };
-  
 
   const logout = () => {
     setAuth({ token: null, user: null });

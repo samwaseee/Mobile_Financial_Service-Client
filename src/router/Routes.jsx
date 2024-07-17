@@ -34,7 +34,7 @@ const router = createBrowserRouter([
             },
             {
                 path: "/admin",
-                element: <AdminHome />
+                element: <PrivateRoute><AdminHome /></PrivateRoute>
             },
             {
                 path: "/register",
