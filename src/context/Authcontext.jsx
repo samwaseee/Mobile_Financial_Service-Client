@@ -1,4 +1,4 @@
-import { createContext, useState, useEffect } from 'react';
+import React, { createContext, useState, useEffect } from 'react';
 import axiosInstance from '../utils/axiosInstance';
 import { jwtDecode } from 'jwt-decode';
 
@@ -6,18 +6,24 @@ const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [auth, setAuth] = useState({ token: null, user: null });
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const savedAuth = JSON.parse(localStorage.getItem('auth'));
-    if (savedAuth) {
-      const { token } = savedAuth;
-      const isTokenValid = validateToken(token);
-      if (isTokenValid) {
-        setAuth(savedAuth);
-      } else {
-        logout();
+    const initializeAuth = () => {
+      const savedAuth = JSON.parse(localStorage.getItem('auth'));
+      if (savedAuth) {
+        const { token } = savedAuth;
+        const isTokenValid = validateToken(token);
+        if (isTokenValid) {
+          setAuth(savedAuth);
+        } else {
+          logout();
+        }
       }
-    }
+      setIsLoading(false);
+    };
+
+    initializeAuth();
   }, []);
 
   const validateToken = (token) => {
@@ -30,13 +36,19 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const login = async (data) => {
-    const response = await axiosInstance.post('/users/login', data);
-    const { token } = response.data;
-    const user = jwtDecode(token);
-    const authData = { token, user };
-    setAuth(authData);
-    localStorage.setItem('auth', JSON.stringify(authData));
+  const login = async (data, role) => {
+    try {
+      const endpoint = role === 'agent' ? '/agents/login' : '/users/login';
+      const response = await axiosInstance.post(endpoint, data);
+      const { token } = response.data;
+      const user = jwtDecode(token);
+      const authData = { token, user };
+      setAuth(authData);
+      localStorage.setItem('auth', JSON.stringify(authData));
+    } catch (error) {
+      console.error('Login error:', error);
+      throw new Error('Login failed');
+    }
   };
 
   const logout = () => {
@@ -45,7 +57,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ auth, login, logout }}>
+    <AuthContext.Provider value={{ auth, login, logout, isLoading }}>
       {children}
     </AuthContext.Provider>
   );

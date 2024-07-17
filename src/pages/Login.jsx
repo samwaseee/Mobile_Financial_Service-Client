@@ -1,10 +1,10 @@
-import React, { useState, useContext } from 'react';
+import { useState, useContext } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { TextField, Button, Radio, RadioGroup, FormControl, FormControlLabel, FormLabel, Typography, Link } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import AuthContext from '../../context/Authcontext';
+import AuthContext from '../context/Authcontext';
 
-const UserPage = () => {
+const Login = () => {
   const { handleSubmit, control, formState: { errors } } = useForm();
   const { login } = useContext(AuthContext);
   const [userType, setUserType] = useState('user'); // Default to 'user' for user login
@@ -19,7 +19,7 @@ const UserPage = () => {
 
     try {
       await login(requestBody);
-      navigate(`/${userType}Home`); // Redirect based on selected userType
+      navigate(`/${userType}`); // Redirect based on selected userType
     } catch (err) {
       setError('Failed to login');
     }
@@ -140,4 +140,4 @@ const UserPage = () => {
   );
 };
 
-export default UserPage;
+export default Login;

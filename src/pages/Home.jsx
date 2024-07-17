@@ -9,8 +9,8 @@ const Home = () => {
             <div className="my-20">
                 <h4 className="text-2xl text-center">Are you a?</h4>
                 <div className="flex justify-center my-4 space-x-3">
-                    <Link to='/user'><button className="btn btn-outline btn-lg">User</button></Link>
-                    <Link to='/agent'><button className="btn btn-outline btn-lg">Agent</button></Link>
+                    <Link to='/login'><button className="btn btn-outline btn-lg">Log In</button></Link>
+                    <Link to='/register'><button className="btn btn-outline btn-lg">Register</button></Link>
                 </div>
             </div>
         </div>
